@@ -21,19 +21,18 @@ public class RestserviceApplication extends SpringBootServletInitializer{
     {
         ApplicationContext ctx = SpringApplication.run(RestserviceApplication.class, args);
         
-        System.err.println("Initialisied Logger");
-        LOGGER.info("Info level log message");
-        LOGGER.debug("Debug level log message");
-        LOGGER.error("Error level log message");
-        System.err.println("END");
+//        System.err.println("Initialisied Logger");
+//        LOGGER.info("Info level log message");
+//        LOGGER.debug("Debug level log message");
+//        LOGGER.error("Error level log message");
+//        System.err.println("END");
         
      // Creating PrintStream Object
-        PrintStream psObj = new PrintStream(System.out);
-        psObj.println("Hello World!");
-        psObj.print("Hello World Again!");
+        PrintStream print = new PrintStream(System.out);
+        print.println("Hello World!");
          
         // Flushing the Stream
-        psObj.flush();
+        print.flush();
     }
 	
 	@Override

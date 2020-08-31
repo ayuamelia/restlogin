@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=ISO-8859-1"
-    pageEncoding="ISO-8859-1"%>
+	pageEncoding="ISO-8859-1"%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -29,12 +29,12 @@
 					placeholder="Password"
 					style="margin-bottom: 5px; width: 200px; height: 30px; border-radius: 5px;" />
 				<a style="color: red">${error}</a><br> <input type="hidden"
-					name="${_csrf.parameterName}" value="${_csrf.token}" />
-
+					name="${_csrf.parameterName}" value="${_csrf.token}" /> 
 				<button type="submit"
 					style="background-color: #323842; color: white; border-radius: 5px;"
 					class="btn btn-primary">Login</button>
 			</div>
+
 
 		</form>
 

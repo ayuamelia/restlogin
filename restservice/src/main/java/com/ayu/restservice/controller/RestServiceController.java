@@ -22,10 +22,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.ModelAndView;
 
 import com.ayu.restservice.dao.UserMapper;
+import com.ayu.restservice.entity.Login;
 import com.ayu.restservice.entity.User;
-import com.ayu.restservice.model.Login;
 
 @RestController
 
@@ -34,44 +35,44 @@ public class RestServiceController {
 	@Autowired
 	UserMapper userMapper;
 
-	private static final String template = "Hello, %s!";
-	private final AtomicLong counter = new AtomicLong();
 	PrintStream print = new PrintStream(System.out);
 
 	@Resource
-	UserMapper um;
-
-	@GetMapping("/listu")
-	public List listUser() {
-		return um.listUser();
+	UserMapper mapper;
+	
+	@GetMapping({ "/" })
+	public ModelAndView login() {
+		ModelAndView index = new ModelAndView("index");
+		return index;
 	}
 
-	@GetMapping("/greeting")
-	public Greeting greeting(@RequestParam(value = "name", defaultValue = "World") String name) {
-		return new Greeting(counter.incrementAndGet(), String.format(template, name));
+	@GetMapping("/listUser")
+	public List listUser() {
+		return mapper.listUser();
 	}
 
 	@RequestMapping(value = "/getUserData", method = { RequestMethod.POST })
-	public Login getData(Model model, @RequestParam("username") String username,
+	public ModelAndView getData(Model model, @RequestParam("username") String username,
 			@RequestParam("password") String password) throws Exception {
-		model.addAttribute("username", username);
+		ModelAndView welcome = new ModelAndView("welcome");
+		ModelAndView index = new ModelAndView("index");
 		User userData = (User) userMapper.findUser(username);
 		TripleDesBouncyCastle myEncryptor = new TripleDesBouncyCastle();
 
 		if (userData != null) {
-			print.println("username found! username:" + username);
+			model.addAttribute("username", username);
 
-			String encrypted = myEncryptor.cryptBC(password, "L4KU3A14DG4T3W4Y");
-			String decrypted = myEncryptor.decryptBC(encrypted, "L4KU3A14DG4T3W4Y");
+			String encrypted = myEncryptor.cryptBC(password);
+			String decrypted = myEncryptor.decryptBC(encrypted);
 
 			Login login = new Login();
 			login.setUserID(username);
 			login.setPassword(encrypted);
-			print.println("Get Login data: " + login);
+			print.println("Login data: " + login);
 			print.println("encrypted: " + encrypted);
 			print.println("decrypted: " + decrypted);
 
-			String url = "https://5f48837457a10f001600dafb.mockapi.io/ad-gateways/verify1/login";
+			String url = "http://10.20.215.10:8201/ad-gateways/verify1";
 
 			// create an instance of RestTemplate
 			RestTemplate restTemplate = new RestTemplate();
@@ -80,7 +81,7 @@ public class RestServiceController {
 			HttpHeaders headers = new HttpHeaders();
 			// set `content-type` header
 			headers.setContentType(MediaType.APPLICATION_JSON);
-			// set `accept` header
+			// set `ClientID` header
 			headers.set("ClientID", "5C343DD198F94EB7E05400144FFBD319");
 
 			Map<String, Object> map = new HashMap<>();
@@ -88,51 +89,23 @@ public class RestServiceController {
 			map.put("ApplicationID", login.getApplicationID());
 			map.put("Password", login.getPassword());
 
-			// build the request
-			HttpEntity<Map<String, Object>> entity = new HttpEntity<>(map, headers);
+			try {
+				// build the request
+				HttpEntity<Map<String, Object>> entity = new HttpEntity<>(map, headers);
 
-			// use `exchange` method for HTTP call
-			ResponseEntity<Login> response = restTemplate.postForEntity(url, entity, Login.class);
-			if (response.getStatusCode() == HttpStatus.OK) {
-				return response.getBody();
-			} else {
-				return null;
+				// use `exchange` method for HTTP call
+				ResponseEntity<Login> response = restTemplate.postForEntity(url, entity, Login.class);
+				if (response.getStatusCode() == HttpStatus.OK) {
+					return welcome;
+				}
+			} catch (Exception e) {
+				model.addAttribute("error", "Wrong Password");
+				e.printStackTrace();
+				return index;
 			}
 		}
-		return null;
+		model.addAttribute("error", "Wrong Username and Password");
+		return index;
 
 	}
 }
-
-//	public Login toEAI() {
-//		String url = "https://5f48837457a10f001600dafb.mockapi.io/ad-gateways/verify1/login";
-//
-//		// create an instance of RestTemplate
-//		RestTemplate restTemplate = new RestTemplate();
-//
-//		// create headers
-//		HttpHeaders headers = new HttpHeaders();
-//		// set `content-type` header
-//		headers.setContentType(MediaType.APPLICATION_JSON);
-//		// set `accept` header
-////	    headers.set("ClientID", "5C343DD198F94EB7E05400144FFBD319");
-//
-//		Map<String, Object> map = new HashMap<>();
-//		Login login = new Login();
-//		map.put("UserID", login.getUserID());
-//		map.put("ApplicationID", login.getApplicationID());
-//		map.put("Password", login.getPassword());
-//
-//		// build the request
-//		HttpEntity<Map<String, Object>> entity = new HttpEntity<>(map, headers);
-//
-//		// use `exchange` method for HTTP call
-//		ResponseEntity<Login> response = restTemplate.postForEntity(url, entity, Login.class);
-//		if (response.getStatusCode() == HttpStatus.OK) {
-//			return response.getBody();
-//		} else {
-//			return null;
-//		}
-//	}
-//
-//}

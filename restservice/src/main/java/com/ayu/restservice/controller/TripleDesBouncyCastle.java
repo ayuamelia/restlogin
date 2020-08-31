@@ -11,14 +11,11 @@ import org.apache.commons.codec.binary.Hex;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 public class TripleDesBouncyCastle {
-
-	private static void init() {
-        Security.addProvider(new BouncyCastleProvider());
-    }
 	
-	public static String cryptBC(String data, String key) {
+	public static String cryptBC(String data) {
 		try {
 			Security.addProvider(new BouncyCastleProvider());
+			String key = "L4KU3A14DG4T3W4Y";
 			Hex Hex = new Hex();
 			byte[] input = data.getBytes();
 			byte[] keyBytes = key.getBytes();
@@ -42,10 +39,11 @@ public class TripleDesBouncyCastle {
 		}
 	}
 
-	public static String decryptBC(String data, String key) {
+	public static String decryptBC(String data) {
 
 		try {
 			Security.addProvider(new BouncyCastleProvider());
+			String key = "L4KU3A14DG4T3W4Y";
 			Hex Hex = new Hex();
 			byte[] input = h2b(data);
 			byte[] keyBytes = key.getBytes();
